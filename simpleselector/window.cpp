@@ -56,13 +56,14 @@ Window::Window(QWidget *parent)
 
 void Window::on_elementLineEdit_returnPressed()
 {
+
     QFile file("../output.html");
 
 //    foreach (QWebElement element, elements) {
 //        element.setAttribute("style", "background-color: #f0f090");
 //    }
 
-    if (file.open(QIODevice::WriteOnly |QIODevice::Text | QIODevice::Append ))
+    if (file.open(QIODevice::WriteOnly |QIODevice::Text))
     {
         QWebFrame *frame = webView->page()->mainFrame();
         QWebElement document = frame->documentElement();
@@ -88,6 +89,8 @@ void Window::on_elementLineEdit_returnPressed()
 
 
     } file.close();
+
+    qDebug() << system("cd .. && ruby main_local.rb");
 }
 
 void Window::on_highlightButton_clicked()

@@ -34,7 +34,7 @@ def create_db(path)
        db.execute <<SQL
 
          CREATE TABLE bets (
-           id PK Integer,
+           id INTEGER PRIMARY KEY,
            bet_name VARCHAR(255),
            bet_type VARCHAR(255),
            bet_sum  VARCHAR(255),
@@ -50,7 +50,10 @@ a = Mechanize.new { |agent|
   agent.user_agent_alias = 'Mac Safari'
 }
 
-a.get('file://output.html') do |page|
+
+
+a.get("file://" + "#{Dir.pwd}" + "/output.html") do |page|
+
   $bets_html = []
 
   page.search('//div[@class="BetMoreWindow"]').each  do |bet|
@@ -76,7 +79,6 @@ $bets_html.each do |b|
 
 
   bets.push(Bet.new(time, name, type, b_sum, w_sum, coef, result))
-  puts bets[-1].inspect
 end
 
 
@@ -86,8 +88,19 @@ else
   db = create_db("test.db")
 end
 
-bets.each do |bet|
-  db.execute( "insert into bets (id, bet_name, bet_type, bet_sum, win_sum, coef, result)
-values (#{bet.id}, '#{bet.name}', '#{bet.type}', '#{bet.b_sum}', '#{bet.w_sum}', '#{bet.coef}', '#{bet.result}');")
+# try catch here
+
+begin
+  bets.each do |bet|
+    begin
+    puts bet.inspect
+    db.execute( "insert into bets (id, bet_name, bet_type, bet_sum, win_sum, coef, result)
+  values (#{bet.id}, '#{bet.name}', '#{bet.type}', '#{bet.b_sum}', '#{bet.w_sum}', '#{bet.coef}', '#{bet.result}');")
+    rescue Exception => err
+      puts err.inspect + " epta"
+    end
+  end
 end
+
+
 
