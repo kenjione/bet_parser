@@ -46,6 +46,10 @@
 //! [Window class definition]
 #include "ui_window.h"
 
+#include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
+
+
 class Window : public QWidget, private Ui::Window
 {
     Q_OBJECT
@@ -54,9 +58,15 @@ public:
     Window(QWidget *parent = 0);
     void setUrl(const QUrl &url);
 
+private:
+    void parsePage(QWebView *webview);
+
 public slots:
     void on_elementLineEdit_returnPressed();
     void on_highlightButton_clicked();
+
+private slots:
+    void on_pushButton_clicked();
 };
 //! [Window class definition]
 

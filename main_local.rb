@@ -90,6 +90,7 @@ end
 
 # try catch here
 
+
 begin
   bets.each do |bet|
     begin
@@ -98,6 +99,7 @@ begin
   values (#{bet.id}, '#{bet.name}', '#{bet.type}', '#{bet.b_sum}', '#{bet.w_sum}', '#{bet.coef}', '#{bet.result}');")
     rescue Exception => err
       puts err.inspect + " epta"
+      db.execute("update bets set result = '#{bet.result}', win_sum = #{bet.w_sum} where id = #{bet.id};")
     end
   end
 end

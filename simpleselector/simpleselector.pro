@@ -1,4 +1,4 @@
-QT       += webkit network widgets
+QT       += webkit network widgets sql
 FORMS     = window.ui
 HEADERS   = window.h
 SOURCES   = main.cpp \

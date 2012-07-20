@@ -45,8 +45,42 @@
 #include <QFile>
 #include <QTextStream>
 #include <iostream>
+#include <QtSql>
+
+#include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
 
 using namespace std;
+
+class PersistentCookieJar : public QNetworkCookieJar {
+public:
+    PersistentCookieJar(QObject *parent) : QNetworkCookieJar(parent) { load(); }
+    ~PersistentCookieJar() { save(); }
+
+public:
+    void save()
+    {
+        QList<QNetworkCookie> list = allCookies();
+        QByteArray data;
+        foreach (QNetworkCookie cookie, list) {
+            if (!cookie.isSessionCookie()) {
+                data.append(cookie.toRawForm());
+                data.append("\n");
+            }
+        }
+        QSettings settings;
+        settings.setValue("Cookies",data);
+    }
+
+    void load()
+    {
+        QSettings settings;
+        QByteArray data = settings.value("Cookies").toByteArray();
+        setAllCookies(QNetworkCookie::parseCookies(data));
+    }
+};
+
+
 
 Window::Window(QWidget *parent)
     : QWidget(parent)
@@ -56,7 +90,21 @@ Window::Window(QWidget *parent)
 
 void Window::on_elementLineEdit_returnPressed()
 {
+    parsePage(webView);
+}
 
+void Window::on_highlightButton_clicked()
+{
+    on_elementLineEdit_returnPressed();
+}
+
+void Window::setUrl(const QUrl &url)
+{
+    webView->setUrl(url);
+}
+
+void Window::parsePage(QWebView *webview)
+{
     QFile file("../output.html");
 
 //    foreach (QWebElement element, elements) {
@@ -65,7 +113,7 @@ void Window::on_elementLineEdit_returnPressed()
 
     if (file.open(QIODevice::WriteOnly |QIODevice::Text))
     {
-        QWebFrame *frame = webView->page()->mainFrame();
+        QWebFrame *frame = webview->page()->mainFrame();
         QWebElement document = frame->documentElement();
         QWebElementCollection elements = document.findAll(elementLineEdit->text());
 
@@ -73,7 +121,7 @@ void Window::on_elementLineEdit_returnPressed()
             element.setAttribute("style", "background-color: #ffffff");
         }
 
-        frame = webView->page()->mainFrame();
+        frame = webview->page()->mainFrame();
         QString html = frame->toHtml();
         QTextStream out(&file);
         out << html;
@@ -93,13 +141,33 @@ void Window::on_elementLineEdit_returnPressed()
     qDebug() << system("cd .. && ruby main_local.rb");
 }
 
-void Window::on_highlightButton_clicked()
-{
-    on_elementLineEdit_returnPressed();
-}
 
-void Window::setUrl(const QUrl &url)
-{
-    webView->setUrl(url);
-}
 
+void Window::on_pushButton_clicked()
+{
+    // проверка
+
+    webView_2->page()->setNetworkAccessManager(webView->page()->networkAccessManager());
+    webView_2->setUrl(QUrl("http://www.forexsport.ru/mybets"));
+
+    sleep(2); // TODO: ожидание дозагрузки страницы
+
+    parsePage(webView_2);
+
+    sleep(2); // TODO: ожидание парсинга страницы
+
+    QSqlDatabase sdb = QSqlDatabase::addDatabase("QSQLITE");
+    sdb.setDatabaseName("../test.db");
+
+    if (!sdb.open()) {
+          qDebug() << sdb.lastError().text();
+    }
+    QString id = lineEdit->text();
+
+    QSqlQuery bet("SELECT * FROM bets WHERE id = " + id + ";");
+    while (bet.next()) {
+        for (int i = 0; i < 7; i++) tableWidget->setItem(i,0,new QTableWidgetItem(bet.value(i).toString()));
+    }
+
+    //tableWidget
+}
