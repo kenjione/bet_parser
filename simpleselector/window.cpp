@@ -46,7 +46,6 @@
 #include <QTextStream>
 #include <iostream>
 #include <QtSql>
-
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 
@@ -141,21 +140,8 @@ void Window::parsePage(QWebView *webview)
     qDebug() << system("cd .. && ruby main_local.rb");
 }
 
-
-
-void Window::on_pushButton_clicked()
+void Window::showBetInfo()
 {
-    // проверка
-
-    webView_2->page()->setNetworkAccessManager(webView->page()->networkAccessManager());
-    webView_2->setUrl(QUrl("http://www.forexsport.ru/mybets"));
-
-    sleep(2); // TODO: ожидание дозагрузки страницы
-
-    parsePage(webView_2);
-
-    sleep(2); // TODO: ожидание парсинга страницы
-
     QSqlDatabase sdb = QSqlDatabase::addDatabase("QSQLITE");
     sdb.setDatabaseName("../test.db");
 
@@ -169,5 +155,20 @@ void Window::on_pushButton_clicked()
         for (int i = 0; i < 7; i++) tableWidget->setItem(i,0,new QTableWidgetItem(bet.value(i).toString()));
     }
 
-    //tableWidget
+}
+
+void Window::finishLoading(bool){
+    parsePage(webView_2);
+    showBetInfo();
+}
+
+
+void Window::on_pushButton_clicked()
+{
+    // проверка
+
+    webView_2->page()->setNetworkAccessManager(webView->page()->networkAccessManager());
+    webView_2->setUrl(QUrl("http://www.forexsport.ru/mybets"));
+
+    connect(webView_2, SIGNAL(loadFinished(bool)), SLOT(finishLoading(bool)));
 }

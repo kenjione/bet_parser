@@ -1,4 +1,5 @@
 # encoding: utf-8
+# coding: utf-8
 
 require "hpricot"
 require "open-uri"
@@ -6,7 +7,6 @@ require "mechanize"
 require 'time'
 
 require 'rubygems'
-require 'mechanize'
 require 'sqlite3'
 
 class Bet
@@ -88,9 +88,6 @@ else
   db = create_db("test.db")
 end
 
-# try catch here
-
-
 begin
   bets.each do |bet|
     begin
@@ -98,7 +95,7 @@ begin
     db.execute( "insert into bets (id, bet_name, bet_type, bet_sum, win_sum, coef, result)
   values (#{bet.id}, '#{bet.name}', '#{bet.type}', '#{bet.b_sum}', '#{bet.w_sum}', '#{bet.coef}', '#{bet.result}');")
     rescue Exception => err
-      puts err.inspect + " epta"
+      puts err.inspect
       db.execute("update bets set result = '#{bet.result}', win_sum = #{bet.w_sum} where id = #{bet.id};")
     end
   end

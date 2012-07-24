@@ -60,10 +60,11 @@ public:
 
 private:
     void parsePage(QWebView *webview);
-
+    void showBetInfo();
 public slots:
     void on_elementLineEdit_returnPressed();
     void on_highlightButton_clicked();
+    void finishLoading(bool);
 
 private slots:
     void on_pushButton_clicked();
