@@ -1,5 +1,5 @@
-# encoding: utf-8
-# coding: utf-8
+#coding: utf-8
+#encoding: cp1251
 
 require "hpricot"
 require "open-uri"
@@ -51,9 +51,9 @@ a = Mechanize.new { |agent|
 }
 
 
-
 a.get("file://" + "#{Dir.pwd}" + "/output.html") do |page|
 
+  page.encoding = 'cp1251'
   $bets_html = []
 
   page.search('//div[@class="BetMoreWindow"]').each  do |bet|
