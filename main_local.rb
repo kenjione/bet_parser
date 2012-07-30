@@ -103,10 +103,12 @@ begin
   end
 end
 
+if ARGV[0] == 'barcode'
+  RGhost::Config::GS[:path]= "C:\\gs\\gs8.60\\bin\\gswin32c.exe"
+  doc=RGhost::Document.new
+  doc.barcode_code128("#{bets[-1].id}",{:text=>{:size=>8}, :parsefnc=>true, :enable=>[:text]})
+  doc.render :jpg, :resolution => 500, :filename => "my_barcode.jpg"
+  puts "barcode gonna print"
 
-# TODO: запилить в отдельный рбшник чтобы не пересоздавал баркод при проверке
-
-RGhost::Config::GS[:path]= "C:\\gs\\gs8.60\\bin\\gswin32c.exe"
-doc=RGhost::Document.new
-doc.barcode_code128("#{bets[-1].id}",{:text=>{:size=>8}, :parsefnc=>true, :enable=>[:text]})
-doc.render :jpg, :resolution => 500, :filename => "my_barcode.jpg"
+  # TODO: запилить ticket-html
+end
